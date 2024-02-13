@@ -1,6 +1,12 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+let originalSpeed = 0.1; // Начальная скорость перемещения персонажа
+let speed = originalSpeed; // Текущая скорость персонажа
+let speedIncrement = 0.1; // Величина увеличения скорости
+let stepsUntilSpeedIncrease = 100; // Количество шагов до увеличения скорости
+let stepsCounter = 0; // Счетчик шагов
+
 // Установка размеров холста равными размерам окна браузера
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -36,14 +42,19 @@ function update() {
     const deltaX = mouseX - playerX;
     const deltaY = mouseY - playerY;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    const speed = 0.1; // Уменьшаем скорость для плавности движения
-    const dx = speed * deltaX / distance;
-    const dy = speed * deltaY / distance;
-    movePlayer(dx, dy);
+    const speedX = speed * deltaX / distance;
+    const speedY = speed * deltaY / distance;
+    movePlayer(speedX, speedY);
+    stepsCounter++;
+    if (stepsCounter >= stepsUntilSpeedIncrease) {
+        stepsCounter = 0;
+        speed += speedIncrement;
+    }
     if (Math.abs(deltaX) < 1 && Math.abs(deltaY) < 1) {
         isCaught = true;
         if (startTime) {
             startTime = null; // Обнуляем таймер
+            speed = originalSpeed; // Сбрасываем скорость
         }
         setTimeout(function() {
             isCaught = false;
@@ -56,7 +67,7 @@ function drawMessage() {
         ctx.fillStyle = "#000";
         ctx.font = "24px Arial";
         ctx.textAlign = "center";
-        ctx.fillText("Петух пойман", canvas.width / 2, canvas.height / 2);
+        ctx.fillText("Поймал петуха!", canvas.width / 2, canvas.height / 2);
     }
 }
 
